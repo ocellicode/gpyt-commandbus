@@ -1,0 +1,159 @@
+name: gpyt-commandbus build
+
+on:
+  push:
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  sort:
+    runs-on: ubuntu-latest
+    name: run isort
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: install poetry
+        run: python -m pip install poetry
+      - name: poetry install
+        run: poetry install
+      - name: run nox
+        run: poetry run nox -s isort
+
+  black:
+    runs-on: ubuntu-latest
+    name: run black
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: install poetry
+        run: python -m pip install poetry
+      - name: poetry install
+        run: poetry install
+      - name: run nox
+        run: poetry run nox -s black
+
+  flake8:
+    runs-on: ubuntu-latest
+    name: run flake8
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: install poetry
+        run: python -m pip install poetry
+      - name: poetry install
+        run: poetry install
+      - name: run flake8
+        run: poetry run nox -s flake8
+
+  pylint:
+    runs-on: ubuntu-latest
+    name: run pylint
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: install poetry
+        run: python -m pip install poetry
+      - name: poetry install
+        run: poetry install
+      - name: run pylint
+        run: poetry run nox -s pylint
+
+  mypy:
+    runs-on: ubuntu-latest
+    name: run mypy
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: install poetry
+        run: python -m pip install poetry
+      - name: poetry install
+        run: poetry install
+      - name: run mypy
+        run: poetry run nox -s mypy
+
+  bandit:
+    runs-on: ubuntu-latest
+    name: run bandit
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: install poetry
+        run: python -m pip install poetry
+      - name: poetry install
+        run: poetry install
+      - name: run bandit
+        run: poetry run nox -s bandit
+
+  tests:
+    runs-on: ubuntu-latest
+    name: run tests
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: install poetry
+        run: python -m pip install poetry
+      - name: poetry install
+        run: poetry install
+      - name: run tests
+        run: poetry run nox -s tests
+
+  coverage:
+    runs-on: ubuntu-latest
+    name: run coverage
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - name: install poetry
+        run: python -m pip install poetry
+      - name: poetry install
+        run: poetry install
+      - name: run coverage
+        run: poetry run nox -s coverage
+
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    name: build wheel
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
+    needs:
+      - sort
+      - black
+      - flake8
+      - pylint
+      - mypy
+      - bandit
+      - tests
+      - coverage
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+    - name: install poetry
+      run: python -m pip install poetry
+
+    - name: run build
+      run: poetry build
+
+    - name: tag
+      run: echo "tag=$(poetry version | cut -d ' ' -f 2)" >> $GITHUB_OUTPUT
+      id: tag
+
+    - name: filename
+      run: echo "filename=$(basename ./dist/*.whl)" >> $GITHUB_OUTPUT
+      id: filename
+
+    - name: create github release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: ./dist/${{ steps.filename.outputs.filename }}
+        bodyFile: "CHANGELOG.md"
+        tag: ${{ steps.tag.outputs.tag }}
+
+    - name: configure poetry test pypi
+      run: poetry config repositories.testpypi https://test.pypi.org/legacy/
+
+    - name: publish to pypi
+      run: poetry publish -r testpypi --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }}
