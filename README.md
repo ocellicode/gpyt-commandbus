@@ -33,6 +33,6 @@ How to...
 [issues-shield]: https://img.shields.io/github/issues/ocellicode/gpyt-commandbus.svg?style=for-the-badge
 [issues-url]: https://github.com/ocellicode/gpyt-commandbus/issues
 [license-shield]: https://img.shields.io/github/license/ocellicode/gpyt-commandbus.svg?style=for-the-badge
-[license-url]: https://github.com/ocellicode/gpyt-commandbus/blob/master/LICENSE.txt
+[license-url]: https://github.com/ocellicode/gpyt-commandbus/blob/master/LICENSE.md
 [status-badge]: https://github.com/ocellicode/gpyt-commandbus/actions/workflows/main.yml/badge.svg
 [status-url]: https://github.com/ocellicode/gpyt-commandbus/actions/workflows/main.yml
