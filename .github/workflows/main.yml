@@ -152,8 +152,24 @@ jobs:
         bodyFile: "CHANGELOG.md"
         tag: ${{ steps.tag.outputs.tag }}
 
-    - name: configure poetry test pypi
-      run: poetry config repositories.testpypi https://test.pypi.org/legacy/
+  pypi:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    name: publish to pypi
+    # if: ${{ always() && github.ref == 'refs/heads/master' && contains(join(needs.*.result, ','), 'success') }}
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
+    needs:
+      - build
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+    - name: install poetry
+      run: python -m pip install poetry
+
+    - name: configure poetry pypi
+      # run: poetry config repositories.pypi https://upload.pypi.org/legacy/  # uncomment this line to publish to pypi
+      run: poetry config repositories.testpypi https://test.pypi.org/legacy/  # comment this line to publish to pypi
 
     - name: publish to pypi
-      run: poetry publish -r testpypi --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }}
+      run: poetry publish -r pypi --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }} --build
