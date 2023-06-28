@@ -116,7 +116,7 @@ jobs:
   build:
     permissions: write-all
     runs-on: ubuntu-latest
-    name: build wheel
+    name: build and publish
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
     needs:
       - sort
