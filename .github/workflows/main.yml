@@ -169,7 +169,7 @@ jobs:
 
     - name: configure poetry pypi
       # run: poetry config repositories.pypi https://upload.pypi.org/legacy/  # uncomment this line to publish to pypi
-      run: poetry config repositories.testpypi https://test.pypi.org/legacy/  # comment this line to publish to pypi
+      run: poetry config repositories.pypi https://test.pypi.org/legacy/  # comment this line to publish to pypi
 
     - name: publish to pypi
       run: poetry publish -r pypi --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }} --build
