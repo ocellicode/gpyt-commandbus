@@ -237,7 +237,9 @@ plugins = [
 ]
 
 [[tool.mypy.overrides]]
-module = []
+module = [
+    "flask_restful"
+]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
