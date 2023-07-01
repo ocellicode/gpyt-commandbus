@@ -22,7 +22,7 @@ Installation of gpyt-commandbus is handled by poetry during development.
 
 ## Usage
 
-How to...
+Serve the application with `waitress-serve gpyt_commandbus.injection.injector:app`.
 
 [contributors-shield]: https://img.shields.io/github/contributors/ocellicode/gpyt-commandbus.svg?style=for-the-badge
 [contributors-url]: https://github.com/ocellicode/gpyt-commandbus/graphs/contributors
