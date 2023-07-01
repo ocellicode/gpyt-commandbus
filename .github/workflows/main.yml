@@ -5,9 +5,15 @@ on:
     tags:
       - '*'
   pull_request:
+    types:
+      - opened
     branches:
-      - development
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
       - master
+      - develop
+
 
 jobs:
   sort:
