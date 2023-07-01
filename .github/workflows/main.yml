@@ -124,7 +124,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     name: build and publish
-    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
+    if: ${{ always() && github.ref == 'refs/heads/master' && contains(join(needs.*.result, ','), 'success') }}
     needs:
       - sort
       - black
@@ -163,8 +163,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     name: publish to pypi
-    # if: ${{ always() && github.ref == 'refs/heads/master' && contains(join(needs.*.result, ','), 'success') }}
-    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
+    if: ${{ always() && github.ref == 'refs/heads/master' && contains(join(needs.*.result, ','), 'success') }}
     needs:
       - build
 
