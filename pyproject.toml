@@ -40,6 +40,7 @@ isort = "^5.12.0"
 flake8-pyproject = "^1.2.3"
 types-pyyaml = "^6.0.12.9"
 pre-commit = "^3.2.2"
+sqlalchemy-stubs = "^0.4"
 
 [build-system]
 requires = ["poetry>=0.12"]
@@ -236,7 +237,8 @@ redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", 
 [tool.mypy]
 python_version = 3.11
 plugins = [
-    "pydantic.mypy"
+    "pydantic.mypy",
+    "sqlmypy",
 ]
 
 [[tool.mypy.overrides]]
