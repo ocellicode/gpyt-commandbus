@@ -25,8 +25,8 @@ Installation of gpyt-commandbus is handled by poetry during development.
 Serve the application with `waitress-serve gpyt_commandbus.injection.injector:app`.
 
 ### Environment variables
-| Variable      | Description | Default |
-|---------------| --- | --- |
+| Variable      | Description          | Default                        |
+|---------------|----------------------|--------------------------------|
 | `GPYT_DB_DSN` | DSN for the database | `sqlite:///gpyt_commandbus.db` |
 
 [contributors-shield]: https://img.shields.io/github/contributors/ocellicode/gpyt-commandbus.svg?style=for-the-badge
