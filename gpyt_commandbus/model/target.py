@@ -14,4 +14,6 @@ class Target(Base):
 
     url = Column(String(255), nullable=False)
     name = Column(String(255), primary_key=True)
-    commands = relationship("Command", back_populates="target")
+    commands = relationship(
+        "Command", back_populates="target"
+    )

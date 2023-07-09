@@ -16,4 +16,6 @@ class Command(Base):
     data = Column(JSON, nullable=False)
     timestamp = Column(DateTime, nullable=False)
     target_name = Column(String, ForeignKey("target.name"))
-    target = relationship("Target", back_populates="commands")
+    target = relationship(
+        "Target", back_populates="commands"
+    )
