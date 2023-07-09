@@ -241,6 +241,7 @@ plugins = [
     "sqlmypy",
 ]
 
+
 [[tool.mypy.overrides]]
 module = [
     "flask_restful"
@@ -255,3 +256,9 @@ env = [
 ]
 [tool.coverage.run]
 omit = []
+branch = true
+[tool.coverage.report]
+exclude_lines = [
+    # Exclude TYPE_CHECKING import
+    "if TYPE_CHECKING:",
+]
