@@ -5,7 +5,7 @@ from flask_restful import Api
 from opyoid import Module, SingletonScope
 from sqlalchemy.orm import Session
 
-from gpyt_commandbus.settings import Settings
+from gpyt_commandbus.interface.settings import Settings
 
 
 class AppModule(Module):

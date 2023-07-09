@@ -1,7 +1,7 @@
 from opyoid import Module, SingletonScope
 from sqlalchemy.engine import Engine, create_engine
 
-from gpyt_commandbus.settings import Settings
+from gpyt_commandbus.interface.settings import Settings
 
 
 class EngineModule(Module):

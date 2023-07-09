@@ -252,7 +252,8 @@ ignore_missing_imports = true
 filterwarnings = ["ignore::DeprecationWarning"]
 bdd_features_base_dir = "tests/features/"
 env = [
-    "GPYT_DB_DSN=sqlite://",
+    "GPYT_DB_DSN=sqlite:///:memory:",
+    "GPYT_DB_ECHO=True",
 ]
 [tool.coverage.run]
 omit = []
