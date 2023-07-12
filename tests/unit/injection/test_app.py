@@ -1,16 +1,12 @@
-from opyoid import SingletonScope
-
-from gpyt_commandbus.injection.modules.app import AppModule
-from unittest.mock import patch
-
-
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+
 from flask import Flask
 from flask_restful import Api
-from opyoid import Provider
+from opyoid import SingletonScope
 from sqlalchemy.orm import Session
 
+from gpyt_commandbus.injection.modules.app import AppModule
 from gpyt_commandbus.interface.settings import Settings
 
 
@@ -24,10 +20,7 @@ class TestAppModule(unittest.TestCase):
         app_module = AppModule()
 
         # Mock resource settings
-        resource_settings = {
-            "/path1": MagicMock(),
-            "/path2": MagicMock()
-        }
+        resource_settings = {"/path1": MagicMock(), "/path2": MagicMock()}
         self.settings.resources = [resource_settings]
 
         # Mock Flask and Api objects
@@ -38,14 +31,11 @@ class TestAppModule(unittest.TestCase):
         mock_api.add_resource = MagicMock()
 
         # Patch the Flask and Api objects
-        with patch("gpyt_commandbus.injection.modules.app.Flask", return_value=mock_flask), \
-                patch("gpyt_commandbus.injection.modules.app.Api", return_value=mock_api):
+        with patch(
+            "gpyt_commandbus.injection.modules.app.Flask", return_value=mock_flask
+        ), patch("gpyt_commandbus.injection.modules.app.Api", return_value=mock_api):
             # Call the get_app method
-            app = app_module.get_app(
-                self.settings,
-                self.logger,
-                self.session
-            )
+            app = app_module.get_app(self.settings, self.logger, self.session)
 
             # Assert that the Flask object is returned
             self.assertEqual(app, mock_flask)
@@ -58,7 +48,7 @@ class TestAppModule(unittest.TestCase):
                     resource_class_kwargs={
                         "logger": self.logger,
                         "session": self.session,
-                    }
+                    },
                 )
 
     def test_configure(self):
@@ -69,4 +59,6 @@ class TestAppModule(unittest.TestCase):
         app_module.configure()
 
         # Assert that the bind method is called with the correct arguments
-        app_module.bind.assert_called_with(Flask, to_provider=app_module.get_app, scope=SingletonScope)
+        app_module.bind.assert_called_with(
+            Flask, to_provider=app_module.get_app, scope=SingletonScope
+        )
