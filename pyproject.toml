@@ -254,6 +254,7 @@ bdd_features_base_dir = "tests/features/"
 env = [
     "GPYT_DB_DSN=sqlite:///:memory:",
     "GPYT_DB_ECHO=True",
+    "GPYT_MODULE_LIST=[\"math.cos\",\"math.sin\",\"math.tan\"]"
 ]
 [tool.coverage.run]
 omit = []
