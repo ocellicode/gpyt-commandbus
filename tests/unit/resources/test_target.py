@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 from flask import Flask
 from flask_restful import Api
 from loguru import logger
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from gpyt_commandbus.model.target import Target as TargetORM
@@ -67,6 +68,20 @@ class TargetTestCase(unittest.TestCase):
         self.session.add.assert_called_once()
         self.session.commit.assert_called_once()
 
+    def test_post_target_duplicate(self):
+        target_data = {"name": "example", "url": "http://example.com"}
+        self.session.add.side_effect = IntegrityError("Test error", None, None)
+        response = self.client.post("/target", json=target_data)
+        self.assertEqual(response.status_code, 409)
+
+        # Verify that the error message is returned
+        response_data = response.get_json()
+        self.assertEqual(response_data, {"message": "Target already exists"})
+
+        # Verify that the session methods were called
+        self.session.add.assert_called_once()
+        self.session.commit.assert_not_called()
+
     def test_verify_request_valid(self):
         target_data = {"name": "example", "url": "http://example.com"}
         target = Target(logger=logger, session=self.session)
@@ -79,7 +94,7 @@ class TargetTestCase(unittest.TestCase):
         result = target.verify_request(target_data)
         self.assertFalse(result)
 
-    def test_persist_target(self):
+    def test_post_target(self):
         target_data = {"name": "example", "url": "http://example.com"}
         target_model = TargetModel(**target_data)
         target = Target(logger=logger, session=self.session)
@@ -97,6 +112,166 @@ class TargetTestCase(unittest.TestCase):
         self.assertEqual(added_target_orm.name, target_model.name)
         self.assertEqual(added_target_orm.url, target_model.url)
 
+    def test_get_target_name(self):
+        the_dict = {"name": "example", "url": "http://example.com"}
+        target_orm = TargetORM(**the_dict)
+        self.session.query.return_value.filter_by.return_value.first.return_value = (
+            target_orm
+        )
 
-if __name__ == "__main__":
-    unittest.main()
+        response = self.client.get("/target", json={"name": the_dict["name"]})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), the_dict)
+
+    def test_get_target_url(self):
+        the_dict = {"name": "example", "url": "http://example.com"}
+        target_orm = TargetORM(**the_dict)
+        self.session.query.return_value.filter_by.return_value.first.return_value = (
+            target_orm
+        )
+
+        response = self.client.get("/target", json={"url": the_dict["url"]})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), the_dict)
+
+    def test_get_target_name_not_found(self):
+        response_dict = {"message": "Target not found"}
+
+        self.session.query.return_value.filter_by.return_value.first.return_value = None
+
+        response = self.client.get("/target", json={"name": "broken"})
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json(), response_dict)
+
+    def test_get_target_url_not_found(self):
+        response_dict = {"message": "Target not found"}
+
+        self.session.query.return_value.filter_by.return_value.first.return_value = None
+
+        response = self.client.get("/target", json={"url": "https://foo.com"})
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json(), response_dict)
+
+    def test_target_get_invalid_request(self):
+        response_dict = {"message": "Invalid request"}
+
+        response = self.client.get("/target", json={"invalid": "request"})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json(), response_dict)
+
+    def test_target_put(self):
+        the_dict = {"name": "example", "url": "http://example.com"}
+        target_orm = TargetORM(**the_dict)
+        self.session.query.return_value.filter_by.return_value.first.return_value = (
+            target_orm
+        )
+
+        response = self.client.put("/target", json=the_dict)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {"message": "Target updated"})
+
+    def test_target_put_not_found(self):
+        response_dict = {"message": "Target not found"}
+
+        self.session.query.return_value.filter_by.return_value.first.return_value = None
+
+        response = self.client.put("/target", json={"name": "broken"})
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json(), response_dict)
+
+    def test_target_put_invalid_request(self):
+        response_dict = {"message": "Invalid request"}
+
+        response = self.client.put("/target", json={"invalid": "request"})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json(), response_dict)
+
+    def test_target_delete_by_name(self):
+        the_dict = {"name": "example", "url": "http://example.com"}
+        target_orm = TargetORM(**the_dict)
+        self.session.query.return_value.filter_by.return_value.first.return_value = (
+            target_orm
+        )
+
+        response = self.client.delete("/target", json=the_dict)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {"message": "Target deleted"})
+
+    def test_target_delete_by_url(self):
+        the_dict = {"name": "example", "url": "http://example.com"}
+        target_orm = TargetORM(**the_dict)
+        self.session.query.return_value.filter_by.return_value.first.return_value = (
+            target_orm
+        )
+
+        response = self.client.delete("/target", json={"url": the_dict["url"]})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {"message": "Target deleted"})
+
+    def test_target_delete_by_name_not_found(self):
+        response_dict = {"message": "Target not found"}
+
+        self.session.query.return_value.filter_by.return_value.first.return_value = None
+
+        response = self.client.delete("/target", json={"name": "broken"})
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json(), response_dict)
+
+    def test_target_delete_by_url_not_found(self):
+        response_dict = {"message": "Target not found"}
+
+        self.session.query.return_value.filter_by.return_value.first.return_value = None
+
+        response = self.client.delete("/target", json={"url": "broken"})
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json(), response_dict)
+
+    def test_target_delete_invalid_request(self):
+        response_dict = {"message": "Invalid request"}
+
+        response = self.client.delete("/target", json={"invalid": "request"})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json(), response_dict)
+
+    def test_target_patch(self):
+        the_dict = {"name": "example", "url": "http://example.com"}
+        target_orm = TargetORM(**the_dict)
+        self.session.query.return_value.filter_by.return_value.first.return_value = (
+            target_orm
+        )
+
+        response = self.client.patch("/target", json=the_dict)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), {"message": "Target updated"})
+
+    def test_target_patch_not_found(self):
+        response_dict = {"message": "Target not found"}
+
+        self.session.query.return_value.filter_by.return_value.first.return_value = None
+
+        response = self.client.patch("/target", json={"name": "broken"})
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json(), response_dict)
+
+    def test_target_patch_invalid_request(self):
+        response_dict = {"message": "Invalid request"}
+
+        response = self.client.patch("/target", json={"invalid": "request"})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json(), response_dict)
