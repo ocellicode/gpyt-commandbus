@@ -27,6 +27,18 @@ class Target(Resource):
         self.session.add(new_target)
         self.session.commit()
 
+    @staticmethod
+    def handle_not_found():
+        return {"message": "Target not found"}, 404
+
+    @staticmethod
+    def handle_invalid_request():
+        return {"message": "Invalid request"}, 400
+
+    def handle_error(self, error):
+        self.logger.error(f"Error: {error}")
+        return {"message": "Error"}, 500
+
     def post(self):
         request_json = request.get_json(force=True)
         self.logger.trace(f"Request json: {request_json}")
@@ -40,84 +52,79 @@ class Target(Resource):
             self.logger.error(f"Error: {integrity_error}")
             self.session.rollback()
             return {"message": "Target already exists"}, 409
-        except Exception as odd_exception:  # pylint: disable=broad-except
-            self.logger.error(f"Error: {odd_exception}")
-            return {"message": "Error"}, 500
+        except Exception as exception:  # pylint: disable=broad-except
+            return self.handle_error(exception)
 
     def get(self):
         request_json = request.get_json(force=True)
         self.logger.trace(f"Request json: {request_json}")
-        if "name" in request_json:
-            target = (
-                self.session.query(TargetORM)
-                .filter_by(name=request_json["name"])
-                .first()
-            )
-            if target:
-                return TargetModel(name=target.name, url=target.url).dict(), 200
-            return {"message": "Target not found"}, 404
-        if "url" in request_json:
-            target = (
-                self.session.query(TargetORM).filter_by(url=request_json["url"]).first()
-            )
-            if target:
-                return TargetModel(name=target.name, url=target.url).dict(), 200
-            return {"message": "Target not found"}, 404
-        return {"message": "Invalid request"}, 400
+        name = request_json.get("name")
+        url = request_json.get("url")
+
+        if name:
+            target = self.session.query(TargetORM).filter_by(name=name).first()
+        elif url:
+            target = self.session.query(TargetORM).filter_by(url=url).first()
+        else:
+            return self.handle_invalid_request()
+
+        if target:
+            return TargetModel(name=target.name, url=target.url).dict(), 200
+        else:
+            return self.handle_not_found()
 
     def delete(self):
         request_json = request.get_json(force=True)
         self.logger.trace(f"Request json: {request_json}")
-        if "name" in request_json:
-            target = (
-                self.session.query(TargetORM)
-                .filter_by(name=request_json["name"])
-                .first()
-            )
-            if target:
-                self.session.delete(target)
-                self.session.commit()
-                return {"message": "Target deleted"}, 200
-            return {"message": "Target not found"}, 404
-        if "url" in request_json:
-            target = (
-                self.session.query(TargetORM).filter_by(url=request_json["url"]).first()
-            )
-            if target:
-                self.session.delete(target)
-                self.session.commit()
-                return {"message": "Target deleted"}, 200
-            return {"message": "Target not found"}, 404
-        return {"message": "Invalid request"}, 400
+        name = request_json.get("name")
+        url = request_json.get("url")
+
+        if name:
+            target = self.session.query(TargetORM).filter_by(name=name).first()
+        elif url:
+            target = self.session.query(TargetORM).filter_by(url=url).first()
+        else:
+            return self.handle_invalid_request()
+
+        if target:
+            self.session.delete(target)
+            self.session.commit()
+            return {"message": "Target deleted"}, 200
+        else:
+            return self.handle_not_found()
+
+    def update_target(self, target, url):
+        target.url = url
+        self.session.commit()
 
     def put(self):
         request_json = request.get_json(force=True)
         self.logger.trace(f"Request json: {request_json}")
-        if "name" in request_json:
-            target = (
-                self.session.query(TargetORM)
-                .filter_by(name=request_json["name"])
-                .first()
-            )
+        name = request_json.get("name")
+        url = request_json.get("url")
+
+        if name and url:
+            target = self.session.query(TargetORM).filter_by(name=name).first()
             if target:
-                target.url = request_json["url"]
-                self.session.commit()
+                self.update_target(target, url)
                 return {"message": "Target updated"}, 200
-            return {"message": "Target not found"}, 404
-        return {"message": "Invalid request"}, 400
+            else:
+                return self.handle_not_found()
+        else:
+            return self.handle_invalid_request()
 
     def patch(self):
         request_json = request.get_json(force=True)
         self.logger.trace(f"Request json: {request_json}")
-        if "name" in request_json:
-            target = (
-                self.session.query(TargetORM)
-                .filter_by(name=request_json["name"])
-                .first()
-            )
+        name = request_json.get("name")
+        url = request_json.get("url")
+
+        if name and url:
+            target = self.session.query(TargetORM).filter_by(name=name).first()
             if target:
-                target.url = request_json["url"]
-                self.session.commit()
+                self.update_target(target, url)
                 return {"message": "Target updated"}, 200
-            return {"message": "Target not found"}, 404
-        return {"message": "Invalid request"}, 400
+            else:
+                return self.handle_not_found()
+        else:
+            return self.handle_invalid_request()

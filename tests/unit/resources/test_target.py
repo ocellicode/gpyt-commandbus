@@ -181,7 +181,7 @@ class TargetTestCase(unittest.TestCase):
 
         self.session.query.return_value.filter_by.return_value.first.return_value = None
 
-        response = self.client.put("/target", json={"name": "broken"})
+        response = self.client.put("/target", json={"name": "broken", "url": "broken"})
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.get_json(), response_dict)
@@ -263,7 +263,9 @@ class TargetTestCase(unittest.TestCase):
 
         self.session.query.return_value.filter_by.return_value.first.return_value = None
 
-        response = self.client.patch("/target", json={"name": "broken"})
+        response = self.client.patch(
+            "/target", json={"name": "broken", "url": "broken"}
+        )
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.get_json(), response_dict)
