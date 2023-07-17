@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from gpyt_commandbus.model.target import Target as TargetORM
+
 from .targetmodel import TargetModel
 
 
@@ -51,7 +52,7 @@ class Target(Resource):
             self.logger.error(f"Error: {integrity_error}")
             self.session.rollback()
             return {"message": "Target already exists"}, 409
-        except Exception as exception:
+        except Exception as exception:  # pylint: disable=broad-except
             return self.handle_error(exception)
 
     def get(self):
