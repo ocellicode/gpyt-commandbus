@@ -1,5 +1,6 @@
 import pytest
 
+from gpyt_commandbus.resources.command import Command
 from gpyt_commandbus.resources.target import Target
 from gpyt_commandbus.settings import Settings
 
@@ -13,7 +14,10 @@ def settings():
 def test_default_values(settings):
     assert settings.db_dsn == "sqlite:///:memory:"
     assert settings.db_echo is True
-    assert settings.resources == [{"/target": Target}]
+    assert settings.resources == [
+        {"/target": Target},
+        {"/command": Command},
+    ]
 
 
 def test_env_prefix(settings):
