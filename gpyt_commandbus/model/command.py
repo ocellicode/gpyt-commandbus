@@ -17,3 +17,11 @@ class Command(Base):
     timestamp = Column(DateTime, nullable=False)
     target_name = Column(String, ForeignKey("target.name"))
     target = relationship("Target", back_populates="commands")
+
+    def get_JSON(self):  # pylint: disable=invalid-name
+        return {
+            "id": self.id,
+            "data": self.data,
+            "timestamp": str(self.timestamp),
+            "target_name": self.target_name,
+        }

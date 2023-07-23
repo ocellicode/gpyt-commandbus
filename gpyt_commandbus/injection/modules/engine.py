@@ -1,7 +1,20 @@
+from sqlite3 import Connection as SQLite3Connection
+
 from opyoid import Module, SingletonScope
+from sqlalchemy import event
 from sqlalchemy.engine import Engine, create_engine
 
 from gpyt_commandbus.interface.settings import Settings
+
+
+@event.listens_for(Engine, "connect")
+def _set_sqlite_pragma(
+    dbapi_connection, connection_record
+):  # pylint: disable=unused-argument
+    if isinstance(dbapi_connection, SQLite3Connection):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON;")
+        cursor.close()
 
 
 class EngineModule(Module):
