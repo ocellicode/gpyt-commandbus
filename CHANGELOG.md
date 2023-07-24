@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.4
+
+### Updated
+- Docker build job
+
 ## 0.0.3
 
 ### Added
