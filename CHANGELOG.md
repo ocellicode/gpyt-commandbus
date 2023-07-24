@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.5
+
+### Updated
+- Dockerfile
+
 ## 0.0.4
 
 ### Updated
