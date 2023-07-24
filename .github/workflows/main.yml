@@ -178,3 +178,21 @@ jobs:
 
     - name: publish to pypi
       run: poetry publish -r pypi --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }} --build
+
+  docker:
+    runs-on: ubuntu-latest
+    if: ${{ always() && github.ref == 'refs/heads/master' && contains(join(needs.*.result, ','), 'success') }}
+    needs:
+      - pypi
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: tag
+      run: echo "tag=$(poetry version | cut -d ' ' -f 2)" >> $GITHUB_OUTPUT
+      id: tag
+    - name: Build the Docker image
+      run: docker build . --tag pcp1976/ocellicode-gpyt-commandbus:${{ steps.tag.outputs.tag }}
+    - name: Push the Docker image to the registry
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+    - name: Push the Docker image to the registry
+      run: docker push pcp1976/ocellicode-gpyt-commandbus:${{ steps.tag.outputs.tag }}
