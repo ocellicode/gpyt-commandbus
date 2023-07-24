@@ -1,5 +1,8 @@
 FROM python:3.11
 
-RUN python3 -m pip install --index-url https://test.pypi.org/simple/ gpyt_commandbus==0.0.3
+RUN python3 -m pip install --extra-index-url https://test.pypi.org/simple/ gpyt_commandbus==0.0.2
+COPY ./alembic.ini ./alembic.ini
+COPY ./alembic ./alembic
+COPY ./entrypoint.sh ./entrypoint.sh
 
-CMD ["waitress-serve", "gpyt_commandbus.injection.injector:app"]
+CMD ["./entrypoint.sh"]
