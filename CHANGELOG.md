@@ -1,7 +1,8 @@
 # Change Log
 
-## [Unreleased]
+## 0.0.2
 
 ### Added
 
-- project structure
+- target endpoint
+- command endpoint
