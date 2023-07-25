@@ -3,6 +3,7 @@ from sys import stderr
 
 from loguru import logger
 from opyoid import Module, SingletonScope
+
 from gpyt_commandbus.interface.settings import Settings
 
 

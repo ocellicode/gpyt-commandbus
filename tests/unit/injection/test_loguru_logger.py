@@ -1,24 +1,29 @@
 import unittest
 from logging import Logger
 from sys import stderr
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from loguru import logger
-from opyoid.injector import Injector
+from opyoid import SingletonScope
 
 from gpyt_commandbus.injection.modules.loguru_logger import LoguruModule
+from gpyt_commandbus.interface.settings import Settings
 
 
 class LoguruModuleTest(unittest.TestCase):
+    def setUp(self):
+        self.settings = MagicMock(spec=Settings)
+
     def test_get_logger(self):
         # Arrange
         module = LoguruModule()
+        self.settings.log_level = "INFO"
 
         # Act
         with patch.object(logger, "remove") as mock_remove, patch.object(
             logger, "add"
         ) as mock_add:
-            result = module.get_logger()
+            result = module.get_logger(self.settings)
 
         # Assert
         self.assertEqual(result, logger)
@@ -28,16 +33,10 @@ class LoguruModuleTest(unittest.TestCase):
     def test_configure(self):
         # Arrange
         module = LoguruModule()
-        injector = Injector([module])
+        module.bind = MagicMock()
 
-        # Act
-        logger_instance = injector.inject(Logger)
+        module.configure()
 
-        # Assert
-        self.assertEqual(logger_instance, logger)
-
-        # Verify binding indirectly
-        try:
-            injector.inject(Logger)
-        except Exception as e:
-            self.fail(f"Failed to inject Logger: {e}")
+        module.bind.assert_called_once_with(
+            Logger, to_provider=module.get_logger, scope=SingletonScope
+        )

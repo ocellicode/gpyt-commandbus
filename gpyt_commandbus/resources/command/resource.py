@@ -17,12 +17,7 @@ class Command(Resource):
         self.session: Session = kwargs["session"]
 
     def post_data_to_endpoint(self, target, data):
-        url = (
-            self.session.query(TargetORM)
-            .filter(TargetORM.name == target)
-            .first()
-            .url
-        )
+        url = self.session.query(TargetORM).filter(TargetORM.name == target).first().url
         response = requests.post(url, json=data, timeout=5)
         response.raise_for_status()
 

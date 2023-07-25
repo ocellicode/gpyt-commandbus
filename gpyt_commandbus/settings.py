@@ -1,10 +1,12 @@
-from typing import Dict, List
+from typing import Dict, List, Literal
 
 from pydantic import BaseSettings, PyObject
 
 from gpyt_commandbus.interface.settings import Settings as ICommandBusSettings
 from gpyt_commandbus.resources.command import Command
 from gpyt_commandbus.resources.target import Target
+
+LogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
 class Settings(BaseSettings, ICommandBusSettings):
@@ -14,7 +16,7 @@ class Settings(BaseSettings, ICommandBusSettings):
     ]
     db_dsn: str = "sqlite:///gpyt_commandbus.db"
     db_echo: bool = True
-    log_level: str = "INFO"
+    log_level: LogLevel = "INFO"
 
     class Config:
         env_prefix = "GPYT_"
