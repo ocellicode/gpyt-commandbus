@@ -1,10 +1,14 @@
 # Change Log
 
+## 0.0.7
+
+### Changed
+- Dockerfile, chmod +x entrypoint.sh
+
 ## 0.0.6
 
 ### Added
 - psycopg2
-
 
 ## 0.0.5
 
