@@ -14,6 +14,7 @@ class Settings(BaseSettings, ICommandBusSettings):
     ]
     db_dsn: str = "sqlite:///gpyt_commandbus.db"
     db_echo: bool = True
+    log_level: str = "INFO"
 
     class Config:
         env_prefix = "GPYT_"

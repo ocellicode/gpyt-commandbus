@@ -3,13 +3,14 @@ from sys import stderr
 
 from loguru import logger
 from opyoid import Module, SingletonScope
+from gpyt_commandbus.interface.settings import Settings
 
 
 class LoguruModule(Module):
     @staticmethod
-    def get_logger() -> Logger:
+    def get_logger(settings: Settings) -> Logger:
         logger.remove()
-        logger.add(stderr, level="INFO")
+        logger.add(stderr, level=settings.log_level)
         return logger  # type: ignore
 
     def configure(self) -> None:
