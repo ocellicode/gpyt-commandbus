@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.6
+
+### Added
+- psycopg2
+
+
 ## 0.0.5
 
 ### Updated
