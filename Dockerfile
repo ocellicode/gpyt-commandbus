@@ -1,5 +1,8 @@
 FROM python:3.11
 
+ARG VERSION=0.0.7
+ARG LABEL=${VERSION}
+
 RUN python3 -m pip install --extra-index-url https://test.pypi.org/simple/ gpyt_commandbus==0.0.7
 COPY ./alembic.ini ./alembic.ini
 COPY ./alembic ./alembic
