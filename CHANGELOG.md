@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.8
+
+### Changed
+- Alembic migrations table creation order
+
 ## 0.0.7
 
 ### Changed
